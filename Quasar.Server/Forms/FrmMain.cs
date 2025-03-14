@@ -43,6 +43,10 @@ namespace Quasar.Server.Forms
         private PreviewHandler _previewImageHandler;
 
 
+        private System.Windows.Forms.Timer animationTimer;
+        private int targetWidth;
+        private bool isExpanding = false;
+
         public FrmMain()
         {
             _clientStatusHandler = new ClientStatusHandler();
@@ -172,6 +176,7 @@ namespace Quasar.Server.Forms
             InitializeServer();
             AutostartListening();
             notifyIcon.Visible = false;
+           
         }
 
         private void FrmMain_FormClosing(object sender, FormClosingEventArgs e)
@@ -212,9 +217,11 @@ namespace Quasar.Server.Forms
                 Debug.WriteLine("sending message!!!!!!!!!!!!!!!!!!!!");
 
                 selectedClients[0].Send(image);
+                panel1.Visible = true;
             }
             else if (selectedClients.Length == 0)
             {
+                panel1.Visible = false;
                 pictureBoxMain.Image = Properties.Resources.no_previewbmp;
 
                 listView1.Items.Clear();
@@ -946,5 +953,72 @@ namespace Quasar.Server.Forms
         {
 
         }
+
+        private void addKeywordsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (var frm = new FrmKeywords())
+            {
+                frm.ShowDialog();
+            }
+        }
+
+        //Add Event to Notification Centre
+
+        public static void AddNotiEvent(FrmMain frmMain, string Client, string Keywords, string WindowText)
+        {
+            if (frmMain.lstNoti.InvokeRequired)
+            {
+                frmMain.lstNoti.Invoke(new Action(() => AddNotiEvent(frmMain, Client, Keywords, WindowText)));
+                return;
+            }
+            ListViewItem item = new ListViewItem(Client);
+            item.SubItems.Add(DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"));
+            item.SubItems.Add(Keywords);
+            while (item.SubItems.Count < 11)
+            {
+                item.SubItems.Add("");
+            }
+            item.SubItems[3].Text = WindowText;
+            frmMain.lstNoti.Items.Add(item);
+        }
+
+        //Get Clients Username
+        public static string GetClientsUsername(string ipAddress, FrmMain frmMain)
+        {
+            foreach (ListViewItem item in frmMain.lstClients.Items)
+            {
+                if (item.Text.Trim() == ipAddress.Trim())
+                {
+                    return item.SubItems[2].Text;
+                }
+            }
+            return "Unknown";
+        }
+
+        private void clientsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MainTabControl.SelectTab(tabPage1);
+        }
+
+        private void notificationCentreToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MainTabControl.SelectTab(tabPage2);
+        }
+
+        private void clearSelectedToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (lstNoti.SelectedItems.Count > 0)
+            {
+                foreach (ListViewItem item in lstNoti.SelectedItems)
+                {
+                    lstNoti.Items.Remove(item);
+                }
+            }
+            else
+            {
+              
+            }
+        }
+
     }
 }

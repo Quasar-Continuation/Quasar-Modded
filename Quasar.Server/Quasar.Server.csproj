@@ -274,6 +274,7 @@
 		<PackageReference Include="protobuf-net">
 			<Version>2.4.9</Version>
 		</PackageReference>
+		<PackageReference Include="System.Text.Json" Version="9.0.3" />
 		<PackageReference Include="Vestris.ResourceLib">
 			<Version>2.2.0</Version>
 		</PackageReference>
